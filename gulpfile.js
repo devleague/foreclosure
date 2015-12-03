@@ -27,7 +27,11 @@ gulp.task('lint', function() {
 gulp.task('mocha', function() {
   return gulp.src(paths.tests)
     .pipe(plugins.plumber(plumberConf))
-    .pipe(plugins.mocha());
+    .pipe(plugins.mocha({
+      reporter: 'spec',
+      bail: true
+    }))
+    .on('error', handleError);
 });
 
 gulp.task('watch', ['test'], function() {
@@ -38,3 +42,9 @@ gulp.task('test', ['lint', 'mocha']);
 
 gulp.task('default', ['test']);
 
+function handleError(err) {
+
+  // emmitting end allows gulp's watch to continue working
+  // else mocha test failures will cause gulp process to exit
+  this.emit('end');
+}
