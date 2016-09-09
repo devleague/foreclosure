@@ -1,15 +1,16 @@
 'use strict';
 
-var gulp   = require('gulp');
-var plugins = require('gulp-load-plugins')();
+let gulp = require('gulp');
+let mocha = require('gulp-spawn-mocha');
+let eslint = require('gulp-eslint');
 
-var paths = {
-  lint : ['./*.js', '!gulpfile.js'],
+let paths = {
+  lint : ['foreclosure.js', , '!test/**', '!gulpfile.js', '!node_modules/**'],
   watch : ['gulpfile.js', './foreclosure.js', './test/**/*.js', '!test/{temp,temp/**}'],
   tests : ['./test/**/*.js', '!test/{temp,temp/**}']
 };
 
-var plumberConf = {};
+let plumberConf = {};
 
 if (process.env.CI) {
   plumberConf.errorHandler = function(err) {
@@ -19,15 +20,14 @@ if (process.env.CI) {
 
 gulp.task('lint', function() {
   return gulp.src(paths.lint)
-    .pipe(plugins.jshint())
-    .pipe(plugins.plumber(plumberConf))
-    .pipe(plugins.jscs())
-    .pipe(plugins.jshint.reporter('jshint-stylish'));
+    .pipe(eslint('.eslintrc.js'))
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
 });
 
 gulp.task('mocha', function() {
   return gulp.src(paths.tests)
-    .pipe(plugins.mocha({
+    .pipe(mocha({
       reporter : 'spec',
       bail : true
     }))
